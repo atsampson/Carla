@@ -174,6 +174,10 @@ const char* carla_get_supported_file_extensions()
         "*.carxp;*.carxs"
         // MIDI files
         ";*.mid;*.midi"
+#ifdef HAVE_CSOUND
+        // Csound files
+        ";*.csd"
+#endif
 #ifdef HAVE_FLUIDSYNTH
         // fluidsynth (sf2)
         ";*.sf2"

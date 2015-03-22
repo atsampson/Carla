@@ -21,6 +21,7 @@ OBJS = \
 	$(OBJDIR)/CarlaPluginVST3.cpp.o \
 	$(OBJDIR)/CarlaPluginAU.cpp.o \
 	$(OBJDIR)/CarlaPluginJuce.cpp.o \
+	$(OBJDIR)/CarlaPluginCsound.cpp.o \
 	$(OBJDIR)/CarlaPluginFluidSynth.cpp.o \
 	$(OBJDIR)/CarlaPluginLinuxSampler.cpp.o
 
@@ -48,6 +49,11 @@ $(MODULEDIR)/carla_plugin.a: $(OBJS)
 	@$(AR) crs $@ $^
 
 # ----------------------------------------------------------------------------------------------------------------------------
+
+$(OBJDIR)/CarlaPluginCsound.cpp.o: CarlaPluginCsound.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling $<"
+	@$(CXX) $< $(BUILD_CXX_FLAGS) $(CSOUND_CFLAGS) -c -o $@
 
 $(OBJDIR)/CarlaPluginFluidSynth.cpp.o: CarlaPluginFluidSynth.cpp
 	-@mkdir -p $(OBJDIR)

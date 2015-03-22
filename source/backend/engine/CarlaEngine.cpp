@@ -459,26 +459,6 @@ bool CarlaEngine::addPlugin(const BinaryType btype, const PluginType ptype,
             break;
 
         case PLUGIN_INTERNAL:
-            /*if (std::strcmp(label, "FluidSynth") == 0)
-            {
-                use16Outs = (extra != nullptr && std::strcmp((const char*)extra, "true") == 0);
-                plugin = CarlaPlugin::newFluidSynth(initializer, use16Outs);
-            }
-            else if (std::strcmp(label, "LinuxSampler (GIG)") == 0)
-            {
-                use16Outs = (extra != nullptr && std::strcmp((const char*)extra, "true") == 0);
-                plugin = CarlaPlugin::newLinuxSampler(initializer, "GIG", use16Outs);
-            }
-            else if (std::strcmp(label, "LinuxSampler (SF2)") == 0)
-            {
-                use16Outs = (extra != nullptr && std::strcmp((const char*)extra, "true") == 0);
-                plugin = CarlaPlugin::newLinuxSampler(initializer, "SF2", use16Outs);
-            }
-            else if (std::strcmp(label, "LinuxSampler (SFZ)") == 0)
-            {
-                use16Outs = (extra != nullptr && std::strcmp((const char*)extra, "true") == 0);
-                plugin = CarlaPlugin::newLinuxSampler(initializer, "SFZ", use16Outs);
-            }*/
             plugin = CarlaPlugin::newNative(initializer);
             break;
 
@@ -504,6 +484,10 @@ bool CarlaEngine::addPlugin(const BinaryType btype, const PluginType ptype,
 
         case PLUGIN_AU:
             plugin = CarlaPlugin::newAU(initializer);
+            break;
+
+        case PLUGIN_CSOUND:
+            plugin = CarlaPlugin::newCsound(initializer);
             break;
 
         case PLUGIN_GIG:
@@ -979,6 +963,9 @@ bool CarlaEngine::loadFile(const char* const filename)
         return loadProject(filename);
 
     // -------------------------------------------------------------------
+
+    if (extension == "csd")
+        return addPlugin(PLUGIN_CSOUND, filename, baseName, baseName, 0, nullptr);
 
     if (extension == "gig")
         return addPlugin(PLUGIN_GIG, filename, baseName, baseName, 0, nullptr);

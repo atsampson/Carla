@@ -13,6 +13,12 @@ CARLA_VESTIGE_HEADER = true
 # Enable experimental plugins, don't complain if the build fails when using this!
 EXPERIMENTAL_PLUGINS = false
 
+# Enable CSound support (please edit the lines below if needed)
+WANT_CSOUND = false
+
+CSOUND_CFLAGS  = -DUSE_DOUBLE -I/opt/kxstudio/include/csound
+CSOUND_LDFLAGS = $(shell pkg-config --libs sndfile) -lcsound64
+
 # --------------------------------------------------------------
 # DO NOT MODIFY PAST THIS POINT!
 
@@ -300,6 +306,10 @@ endif
 
 ifeq ($(HAVE_X11),true)
 BASE_FLAGS += -DHAVE_X11
+endif
+
+ifeq ($(WANT_CSOUND),true)
+BASE_FLAGS += -DHAVE_CSOUND
 endif
 
 ifeq ($(CARLA_VESTIGE_HEADER),true)

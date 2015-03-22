@@ -1565,6 +1565,12 @@ public:
             return false;
         }
 
+        if (fSettings == nullptr)
+        {
+            pData->engine->setLastError("null settings");
+            return false;
+        }
+
         if (filename == nullptr || filename[0] == '\0')
         {
             pData->engine->setLastError("null filename");
@@ -1672,9 +1678,9 @@ CARLA_BACKEND_START_NAMESPACE
 
 // -------------------------------------------------------------------------------------------------------------------
 
-CarlaPlugin* CarlaPlugin::newFluidSynth(const Initializer& init, const bool use16Outs)
+CarlaPlugin* CarlaPlugin::newFileSF2(const Initializer& init, const bool use16Outs)
 {
-    carla_debug("CarlaPlugin::newFluidSynth({%p, \"%s\", \"%s\", \"%s\", " P_INT64 "}, %s)", init.engine, init.filename, init.name, init.label, init.uniqueId, bool2str(use16Outs));
+    carla_debug("CarlaPlugin::newFileSF2({%p, \"%s\", \"%s\", \"%s\"}, %s)", init.engine, init.filename, init.name, init.label, bool2str(use16Outs));
 
 #ifdef HAVE_FLUIDSYNTH
     if (init.engine->getProccessMode() == ENGINE_PROCESS_MODE_CONTINUOUS_RACK && use16Outs)
@@ -1698,20 +1704,6 @@ CarlaPlugin* CarlaPlugin::newFluidSynth(const Initializer& init, const bool use1
     }
 
     return plugin;
-#else
-    init.engine->setLastError("fluidsynth support not available");
-    return nullptr;
-
-    // unused
-    (void)use16Outs;
-#endif
-}
-
-CarlaPlugin* CarlaPlugin::newFileSF2(const Initializer& init, const bool use16Outs)
-{
-    carla_debug("CarlaPlugin::newFileSF2({%p, \"%s\", \"%s\", \"%s\"}, %s)", init.engine, init.filename, init.name, init.label, bool2str(use16Outs));
-#ifdef HAVE_FLUIDSYNTH
-    return newFluidSynth(init, use16Outs);
 #else
     init.engine->setLastError("SF2 support not available");
     return nullptr;

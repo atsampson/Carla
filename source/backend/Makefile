@@ -111,6 +111,10 @@ ifeq ($(HAVE_X11),true)
 STANDALONE_LINK_FLAGS += $(X11_LIBS)
 endif
 
+ifeq ($(WANT_CSOUND),true)
+STANDALONE_LINK_FLAGS += $(CSOUND_LDFLAGS)
+endif
+
 UTILS_LINK_FLAGS  = $(JUCE_AUDIO_BASICS_LIBS)
 UTILS_LINK_FLAGS += $(JUCE_AUDIO_FORMATS_LIBS)
 UTILS_LINK_FLAGS += $(JUCE_CORE_LIBS)
@@ -165,6 +169,7 @@ $(OBJDIR)/%.cpp.o: %.cpp
 	@echo "Compiling $<"
 	@$(CXX) $< $(BUILD_CXX_FLAGS) -c -o $@
 
--include $(OBJS:%.o=%.d)
+-include $(OBJS_standalone:%.o=%.d)
+-include $(OBJS_utils:%.o=%.d)
 
 # ----------------------------------------------------------------------------------------------------------------------------

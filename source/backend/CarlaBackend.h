@@ -488,19 +488,24 @@ typedef enum {
     PLUGIN_AU = 7,
 
     /*!
+     * Csound file.
+     */
+    PLUGIN_CSOUND = 8,
+
+    /*!
      * GIG file.
      */
-    PLUGIN_GIG = 8,
+    PLUGIN_GIG = 9,
 
     /*!
      * SF2 file (SoundFont).
      */
-    PLUGIN_SF2 = 9,
+    PLUGIN_SF2 = 10,
 
     /*!
      * SFZ file.
      */
-    PLUGIN_SFZ = 10
+    PLUGIN_SFZ = 11
 
 } PluginType;
 

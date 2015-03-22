@@ -1394,11 +1394,11 @@ CARLA_BACKEND_START_NAMESPACE
 
 // -------------------------------------------------------------------------------------------------------------------
 
-CarlaPlugin* CarlaPlugin::newLinuxSampler(const Initializer& init, const char* const format, const bool use16Outs)
+#ifdef HAVE_LINUXSAMPLER
+CarlaPlugin* newLinuxSampler(const CarlaPlugin::Initializer& init, const char* const format, const bool use16Outs)
 {
     carla_debug("CarlaPluginLinuxSampler::newLinuxSampler({%p, \"%s\", \"%s\", \"%s\", " P_INT64 "}, %s, %s)", init.engine, init.filename, init.name, init.label, init.uniqueId, format, bool2str(use16Outs));
 
-#ifdef HAVE_LINUXSAMPLER
     CarlaString sformat(format);
     sformat.toLower();
 
@@ -1432,15 +1432,8 @@ CarlaPlugin* CarlaPlugin::newLinuxSampler(const Initializer& init, const char* c
     }
 
     return plugin;
-#else
-    init.engine->setLastError("linuxsampler support not available");
-    return nullptr;
-
-    // unused
-    (void)format;
-    (void)use16Outs;
-#endif
 }
+#endif
 
 CarlaPlugin* CarlaPlugin::newFileGIG(const Initializer& init, const bool use16Outs)
 {

@@ -532,6 +532,9 @@ String CarlaStateSave::toString() const
         case PLUGIN_AU:
             infoXml << "   <Identifier>" << xmlSafeString(label, true) << "</Identifier>\n";
             break;
+        case PLUGIN_CSOUND:
+            infoXml << "   <Filename>"   << xmlSafeString(binary, true) << "</Filename>\n";
+            break;
         case PLUGIN_GIG:
         case PLUGIN_SF2:
             infoXml << "   <Filename>"   << xmlSafeString(binary, true) << "</Filename>\n";
