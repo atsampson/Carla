@@ -784,6 +784,9 @@ ENGINE_OPTION_PREVENT_BAD_BEHAVIOUR = 16
 # Set frontend winId, used to define as parent window for plugin UIs.
 ENGINE_OPTION_FRONTEND_WIN_ID = 17
 
+# Capture console output into debug callbacks
+ENGINE_OPTION_DEBUG_CONSOLE_OUTPUT = 18
+
 # ------------------------------------------------------------------------------------------------------------
 # Engine Process Mode
 # Engine process mode.
@@ -1212,6 +1215,7 @@ class CarlaHostMeta(object):
         self.transportMode     = ENGINE_TRANSPORT_MODE_INTERNAL
         self.nextProcessMode   = ENGINE_PROCESS_MODE_PATCHBAY
         self.processModeForced = False
+        self.audioDriverForced = None
 
         # settings
         self.forceStereo         = False
@@ -1219,6 +1223,7 @@ class CarlaHostMeta(object):
         self.preferUIBridges     = False
         self.preventBadBehaviour = False
         self.manageUIs           = False
+        self.showLogs            = False
         self.uisAlwaysOnTop      = False
         self.maxParameters       = 0
         self.uiBridgesTimeout    = 0

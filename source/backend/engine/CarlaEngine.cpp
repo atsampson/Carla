@@ -426,6 +426,8 @@ bool CarlaEngine::addPlugin(const BinaryType btype, const PluginType ptype,
         {
             if (std::strcmp(label, "http://calf.sourceforge.net/plugins/Analyzer") == 0)
                 preferBridges = true;
+            if (std::strcmp(label, "http://calf.sourceforge.net/plugins/Fluidsynth") == 0)
+                preferBridges = true;
             if (std::strcmp(label, "http://factorial.hu/plugins/lv2/ir") == 0)
                 preferBridges = true;
         }
@@ -1575,11 +1577,14 @@ void CarlaEngine::setOption(const EngineOption option, const int value, const ch
 #endif
         break;
 
-    case ENGINE_OPTION_FRONTEND_WIN_ID:
+    case ENGINE_OPTION_FRONTEND_WIN_ID: {
         CARLA_SAFE_ASSERT_RETURN(valueStr != nullptr && valueStr[0] != '\0',);
         const long long winId(std::strtoll(valueStr, nullptr, 16));
         CARLA_SAFE_ASSERT_RETURN(winId >= 0,);
         pData->options.frontendWinId = static_cast<uintptr_t>(winId);
+    }   break;
+
+    case ENGINE_OPTION_DEBUG_CONSOLE_OUTPUT:
         break;
     }
 }

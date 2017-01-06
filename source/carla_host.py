@@ -199,6 +199,9 @@ class HostWindow(QMainWindow):
         else:
             self.ui.act_engine_start.setEnabled(True)
 
+            if WINDOWS:
+                self.ui.tabWidget.removeTab(2)
+
         if not self.host.isControl:
             self.ui.act_file_connect.setEnabled(False)
             self.ui.act_file_connect.setVisible(False)
@@ -2285,6 +2288,11 @@ def loadHostSettings(host):
         host.manageUIs = CARLA_DEFAULT_MAIN_MANAGE_UIS
 
     try:
+        host.showLogs = settings.value(CARLA_KEY_MAIN_SHOW_LOGS, CARLA_DEFAULT_MAIN_SHOW_LOGS, type=bool)
+    except:
+        host.showLogs = CARLA_DEFAULT_MAIN_SHOW_LOGS
+
+    try:
         host.uisAlwaysOnTop = settings.value(CARLA_KEY_ENGINE_UIS_ALWAYS_ON_TOP, CARLA_DEFAULT_UIS_ALWAYS_ON_TOP, type=bool)
     except:
         host.uisAlwaysOnTop = CARLA_DEFAULT_UIS_ALWAYS_ON_TOP
@@ -2319,10 +2327,11 @@ def loadHostSettings(host):
         return
 
     # enums
-    try:
-        host.transportMode = settings.value(CARLA_KEY_ENGINE_TRANSPORT_MODE, CARLA_DEFAULT_TRANSPORT_MODE, type=int)
-    except:
-        host.transportMode = CARLA_DEFAULT_TRANSPORT_MODE
+    if host.audioDriverForced is None:
+        try:
+            host.transportMode = settings.value(CARLA_KEY_ENGINE_TRANSPORT_MODE, CARLA_DEFAULT_TRANSPORT_MODE, type=int)
+        except:
+            host.transportMode = CARLA_DEFAULT_TRANSPORT_MODE
 
     if not host.processModeForced:
         try:
@@ -2354,7 +2363,6 @@ def setHostSettings(host):
 
     # TEST
     #host.preventBadBehaviour = True
-
     host.set_engine_option(ENGINE_OPTION_FORCE_STEREO,          host.forceStereo,         "")
     host.set_engine_option(ENGINE_OPTION_PREFER_PLUGIN_BRIDGES, host.preferPluginBridges, "")
     host.set_engine_option(ENGINE_OPTION_PREFER_UI_BRIDGES,     host.preferUIBridges,     "")
@@ -2362,6 +2370,7 @@ def setHostSettings(host):
     host.set_engine_option(ENGINE_OPTION_MAX_PARAMETERS,        host.maxParameters,       "")
     host.set_engine_option(ENGINE_OPTION_UI_BRIDGES_TIMEOUT,    host.uiBridgesTimeout,    "")
     host.set_engine_option(ENGINE_OPTION_PREVENT_BAD_BEHAVIOUR, host.preventBadBehaviour, "")
+    host.set_engine_option(ENGINE_OPTION_DEBUG_CONSOLE_OUTPUT,  host.showLogs,            "")
 
     if host.isPlugin:
         return
@@ -2422,10 +2431,13 @@ def setEngineSettings(host):
     # driver and device settings
 
     # driver name
-    try:
-        audioDriver = settings.value(CARLA_KEY_ENGINE_AUDIO_DRIVER, CARLA_DEFAULT_AUDIO_DRIVER, type=str)
-    except:
-        audioDriver = CARLA_DEFAULT_AUDIO_DRIVER
+    if host.audioDriverForced is not None:
+        audioDriver = host.audioDriverForced
+    else:
+        try:
+            audioDriver = settings.value(CARLA_KEY_ENGINE_AUDIO_DRIVER, CARLA_DEFAULT_AUDIO_DRIVER, type=str)
+        except:
+            audioDriver = CARLA_DEFAULT_AUDIO_DRIVER
 
     # driver options
     try:

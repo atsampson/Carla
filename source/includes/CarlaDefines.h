@@ -1,6 +1,6 @@
 /*
  * Carla common defines
- * Copyright (C) 2011-2014 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2011-2017 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,8 +32,8 @@
 #endif
 
 /* Set Version */
-#define CARLA_VERSION_HEX    0x01096
-#define CARLA_VERSION_STRING "1.9.6 (2.0-beta4)"
+#define CARLA_VERSION_HEX    0x01097
+#define CARLA_VERSION_STRING "1.9.7 (2.0-beta5)"
 
 /* Check OS */
 #if defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
@@ -58,7 +58,9 @@
 
 /* Check for C++11 support */
 #if defined(HAVE_CPP11_SUPPORT)
-# define CARLA_PROPER_CPP11_SUPPORT
+# if HAVE_CPP11_SUPPORT
+#   define CARLA_PROPER_CPP11_SUPPORT
+# endif
 #elif defined(__cplusplus)
 # if __cplusplus >= 201103L || (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) >= 405 && defined(__GXX_EXPERIMENTAL_CXX0X__)) || __has_extension(cxx_noexcept)
 #  define CARLA_PROPER_CPP11_SUPPORT

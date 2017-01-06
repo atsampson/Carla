@@ -242,6 +242,10 @@ class CarlaSettingsW(QDialog):
             self.ui.ch_main_manage_uis.setEnabled(False)
             self.ui.ch_main_manage_uis.setVisible(False)
 
+        if WINDOWS or host.isControl:
+            self.ui.ch_main_show_logs.setEnabled(False)
+            self.ui.ch_main_show_logs.setVisible(False)
+
         if host.isControl:
             self.ui.lw_page.hideRow(self.TAB_INDEX_CANVAS)
             self.ui.lw_page.hideRow(self.TAB_INDEX_ENGINE)
@@ -256,6 +260,10 @@ class CarlaSettingsW(QDialog):
 
         if host.isPlugin:
             self.ui.cb_engine_audio_driver.setEnabled(False)
+
+        if host.audioDriverForced is not None:
+            self.ui.cb_engine_audio_driver.setEnabled(False)
+            self.ui.tb_engine_driver_config.setEnabled(False)
 
         if host.processModeForced:
             self.ui.cb_engine_process_mode_jack.setEnabled(False)
@@ -325,6 +333,7 @@ class CarlaSettingsW(QDialog):
         # Main
 
         self.ui.ch_main_manage_uis.setChecked(self.host.manageUIs)
+        self.ui.ch_main_show_logs.setChecked(self.host.showLogs)
         self.ui.ch_engine_uis_always_on_top.setChecked(self.host.uisAlwaysOnTop)
 
         self.ui.le_main_proj_folder.setText(settings.value(CARLA_KEY_MAIN_PROJECT_FOLDER, CARLA_DEFAULT_MAIN_PROJECT_FOLDER, type=str))
@@ -356,6 +365,9 @@ class CarlaSettingsW(QDialog):
         if self.host.isPlugin:
             audioDriver = "Plugin"
             self.ui.cb_engine_audio_driver.setCurrentIndex(0)
+        elif self.host.audioDriverForced:
+            audioDriver = self.host.audioDriverForced
+            self.ui.cb_engine_audio_driver.setCurrentIndex(0)
         else:
             audioDriver = settings.value(CARLA_KEY_ENGINE_AUDIO_DRIVER, CARLA_DEFAULT_AUDIO_DRIVER, type=str)
 
@@ -371,7 +383,7 @@ class CarlaSettingsW(QDialog):
             self.ui.tb_engine_driver_config.setEnabled(False)
         else:
             self.ui.sw_engine_process_mode.setCurrentIndex(1)
-            self.ui.tb_engine_driver_config.setEnabled(not self.host.isPlugin)
+            self.ui.tb_engine_driver_config.setEnabled(self.host.audioDriverForced is None and not self.host.isPlugin)
 
         self.ui.cb_engine_process_mode_jack.setCurrentIndex(self.host.nextProcessMode)
 
@@ -449,6 +461,7 @@ class CarlaSettingsW(QDialog):
         # Main
 
         self.host.manageUIs      = self.ui.ch_main_manage_uis.isChecked()
+        self.host.showLogs       = self.ui.ch_main_show_logs.isChecked()
         self.host.uisAlwaysOnTop = self.ui.ch_engine_uis_always_on_top.isChecked()
 
         settings.setValue(CARLA_KEY_MAIN_PROJECT_FOLDER,   self.ui.le_main_proj_folder.text())
@@ -458,6 +471,7 @@ class CarlaSettingsW(QDialog):
         settings.setValue(CARLA_KEY_MAIN_USE_CUSTOM_SKINS, self.ui.ch_main_use_custom_skins.isChecked())
 
         settings.setValue(CARLA_KEY_MAIN_MANAGE_UIS,          self.host.manageUIs)
+        settings.setValue(CARLA_KEY_MAIN_SHOW_LOGS,           self.host.showLogs)
         settings.setValue(CARLA_KEY_ENGINE_UIS_ALWAYS_ON_TOP, self.host.uisAlwaysOnTop)
 
         # ----------------------------------------------------------------------------------------------------
@@ -482,7 +496,7 @@ class CarlaSettingsW(QDialog):
 
         audioDriver = self.ui.cb_engine_audio_driver.currentText()
 
-        if audioDriver and not self.host.isPlugin:
+        if audioDriver and self.host.audioDriverForced is None and not self.host.isPlugin:
             settings.setValue(CARLA_KEY_ENGINE_AUDIO_DRIVER, audioDriver)
 
         if not self.host.processModeForced:
@@ -584,6 +598,7 @@ class CarlaSettingsW(QDialog):
             self.ui.sb_main_refresh_interval.setValue(CARLA_DEFAULT_MAIN_REFRESH_INTERVAL)
             self.ui.ch_main_use_custom_skins.setChecked(CARLA_DEFAULT_MAIN_USE_CUSTOM_SKINS)
             self.ui.ch_main_manage_uis.setChecked(CARLA_DEFAULT_MAIN_MANAGE_UIS)
+            self.ui.ch_main_show_logs.setChecked(CARLA_DEFAULT_MAIN_SHOW_LOGS)
 
         # ----------------------------------------------------------------------------------------------------
         # Canvas

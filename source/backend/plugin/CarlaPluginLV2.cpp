@@ -501,9 +501,10 @@ public:
           fCvOutBuffers(nullptr),
           fParamBuffers(nullptr),
           fCanInit2(true),
+          fNeedsFixedBuffers(false),
           fNeedsUiClose(false),
           fLatencyIndex(-1),
-          fNeedsFixedBuffers(false),
+          fStrictBounds(-1),
           fAtomBufferIn(),
           fAtomBufferOut(),
           fAtomForge(),
@@ -842,8 +843,16 @@ public:
         CARLA_SAFE_ASSERT_RETURN(fParamBuffers != nullptr, 0.0f);
         CARLA_SAFE_ASSERT_RETURN(parameterId < pData->param.count, 0.0f);
 
-        if (pData->param.data[parameterId].hints & PARAMETER_IS_STRICT_BOUNDS)
-            pData->param.ranges[parameterId].fixValue(fParamBuffers[parameterId]);
+        if (pData->param.data[parameterId].type == PARAMETER_INPUT)
+        {
+            if (pData->param.data[parameterId].hints & PARAMETER_IS_STRICT_BOUNDS)
+                pData->param.ranges[parameterId].fixValue(fParamBuffers[parameterId]);
+        }
+        else
+        {
+            if (fStrictBounds >= 0 && (pData->param.data[parameterId].hints & PARAMETER_IS_STRICT_BOUNDS) == 0)
+                pData->param.ranges[parameterId].fixValue(fParamBuffers[parameterId]);
+        }
 
         return fParamBuffers[parameterId];
     }
@@ -3025,28 +3034,46 @@ public:
                         else
                             nextBankId = 0;
 
-                        // reset iters
-                        const uint32_t j = fEventsIn.ctrlIndex;
+                        for (uint32_t j=0; j < fEventsIn.count; ++j)
+                        {
+                            if (fEventsIn.data[j].type & CARLA_EVENT_DATA_ATOM)
+                            {
+                                lv2_atom_buffer_reset(fEventsIn.data[j].atom, true);
+                                lv2_atom_buffer_begin(&evInAtomIters[j], fEventsIn.data[j].atom);
+                            }
+                            else if (fEventsIn.data[j].type & CARLA_EVENT_DATA_EVENT)
+                            {
+                                lv2_event_buffer_reset(fEventsIn.data[j].event, LV2_EVENT_AUDIO_STAMP, fEventsIn.data[j].event->data);
+                                lv2_event_begin(&evInEventIters[j], fEventsIn.data[j].event);
+                            }
+                            else if (fEventsIn.data[j].type & CARLA_EVENT_DATA_MIDI_LL)
+                            {
+                                fEventsIn.data[j].midi.event_count = 0;
+                                fEventsIn.data[j].midi.size        = 0;
+                                evInMidiStates[j].position         = event.time;
+                            }
+                        }
 
-                        if (fEventsIn.ctrl->type & CARLA_EVENT_DATA_ATOM)
+                        for (uint32_t j=0; j < fEventsOut.count; ++j)
                         {
-                            lv2_atom_buffer_reset(fEventsIn.data[j].atom, true);
-                            lv2_atom_buffer_begin(&evInAtomIters[j], fEventsIn.data[j].atom);
-                        }
-                        else if (fEventsIn.ctrl->type & CARLA_EVENT_DATA_EVENT)
-                        {
-                            lv2_event_buffer_reset(fEventsIn.data[j].event, LV2_EVENT_AUDIO_STAMP, fEventsIn.data[j].event->data);
-                            lv2_event_begin(&evInEventIters[j], fEventsIn.data[j].event);
-                        }
-                        else if (fEventsIn.ctrl->type & CARLA_EVENT_DATA_MIDI_LL)
-                        {
-                            fEventsIn.data[j].midi.event_count = 0;
-                            fEventsIn.data[j].midi.size        = 0;
-                            evInMidiStates[j].position = event.time;
+                            if (fEventsOut.data[j].type & CARLA_EVENT_DATA_ATOM)
+                            {
+                                lv2_atom_buffer_reset(fEventsOut.data[j].atom, false);
+                            }
+                            else if (fEventsOut.data[j].type & CARLA_EVENT_DATA_EVENT)
+                            {
+                                lv2_event_buffer_reset(fEventsOut.data[j].event, LV2_EVENT_AUDIO_STAMP, fEventsOut.data[j].event->data);
+                            }
+                            else if (fEventsOut.data[j].type & CARLA_EVENT_DATA_MIDI_LL)
+                            {
+                                // not needed
+                            }
                         }
                     }
                     else
+                    {
                         startTime += timeOffset;
+                    }
                 }
 
                 switch (event.type)
@@ -3451,7 +3478,9 @@ public:
                 if (pData->param.data[k].type != PARAMETER_OUTPUT)
                     continue;
 
-                pData->param.ranges[k].fixValue(fParamBuffers[k]);
+                if (fStrictBounds >= 0 && (pData->param.data[k].hints & PARAMETER_IS_STRICT_BOUNDS) != 0)
+                    // plugin is responsible to ensure correct bounds
+                    pData->param.ranges[k].fixValue(fParamBuffers[k]);
 
                 if (pData->param.data[k].midiCC > 0)
                 {
@@ -4248,7 +4277,7 @@ public:
         const std::string    s_uri(uri);
         const std::ptrdiff_t s_pos(std::find(fCustomURIDs.begin(), fCustomURIDs.end(), s_uri) - fCustomURIDs.begin());
 
-        if (s_pos <= 0 || s_pos >= UINT32_MAX)
+        if (s_pos <= 0 || s_pos >= INT32_MAX)
             return CARLA_URI_MAP_ID_NULL;
 
         const LV2_URID urid     = static_cast<LV2_URID>(s_pos);
@@ -4808,6 +4837,10 @@ public:
             {
                 fNeedsFixedBuffers = true;
             }
+            else if (std::strcmp(feature.URI, LV2_PORT_PROPS__supportsStrictBounds) == 0)
+            {
+                fStrictBounds = feature.Required ? 1 : 0;
+            }
             else if (feature.Required && ! is_lv2_feature_supported(feature.URI))
             {
                 CarlaString msg("Plugin wants a feature that is not supported:\n");
@@ -5068,13 +5101,12 @@ public:
         int eQt4, eQt5, eGtk2, eGtk3, eCocoa, eWindows, eX11, eExt, eMod, iCocoa, iWindows, iX11, iExt, iFinal;
         eQt4 = eQt5 = eGtk2 = eGtk3 = eCocoa = eWindows = eX11 = eExt = eMod = iCocoa = iWindows = iX11 = iExt = iFinal = -1;
 
-#if defined(BUILD_BRIDGE)
-        const bool preferUiBridges(false);
-#elif defined(LV2_UIS_ONLY_BRIDGES)
+#if defined(BUILD_BRIDGE) || defined(LV2_UIS_ONLY_BRIDGES)
         const bool preferUiBridges(true);
 #else
         const bool preferUiBridges(pData->engine->getOptions().preferUiBridges && (pData->hints & PLUGIN_IS_BRIDGE) == 0);
 #endif
+        bool hasShowInterface = false;
 
         for (uint32_t i=0; i < fRdfDescriptor->UICount; ++i)
         {
@@ -5168,11 +5200,11 @@ public:
         else if (iExt >= 0)
             iFinal = iExt;
 
+#ifndef BUILD_BRIDGE
         if (iFinal < 0)
+#endif
         {
             // no suitable UI found, see if there's one which supports ui:showInterface
-            bool hasShowInterface = false;
-
             for (uint32_t i=0; i < fRdfDescriptor->UICount && ! hasShowInterface; ++i)
             {
                 LV2_RDF_UI* const ui(&fRdfDescriptor->UIs[i]);
@@ -5190,7 +5222,7 @@ public:
                 }
             }
 
-            if (! hasShowInterface)
+            if (iFinal < 0)
             {
                 if (eMod < 0)
                 {
@@ -5241,8 +5273,13 @@ public:
 
         const LV2_Property uiType(fUI.rdfDescriptor->Type);
 
-        if (iFinal == eQt4 || iFinal == eQt5 || iFinal == eGtk2 || iFinal == eGtk3 ||
-            iFinal == eCocoa || iFinal == eWindows || iFinal == eX11 || iFinal == eExt || iFinal == eMod)
+        if (
+            (iFinal == eQt4 || iFinal == eQt5 || iFinal == eGtk2 || iFinal == eGtk3 ||
+             iFinal == eCocoa || iFinal == eWindows || iFinal == eX11 || iFinal == eExt || iFinal == eMod)
+#ifdef BUILD_BRIDGE
+            && preferUiBridges && ! hasShowInterface
+#endif
+            )
         {
             // -----------------------------------------------------------
             // initialize ui-bridge
@@ -5529,9 +5566,10 @@ private:
     float*  fParamBuffers;
 
     bool    fCanInit2; // some plugins don't like 2 instances
+    bool    fNeedsFixedBuffers;
     bool    fNeedsUiClose;
     int32_t fLatencyIndex; // -1 if invalid
-    bool    fNeedsFixedBuffers;
+    int     fStrictBounds; // -1 unsupported, 0 optional, 1 required
 
     Lv2AtomRingBuffer fAtomBufferIn;
     Lv2AtomRingBuffer fAtomBufferOut;
