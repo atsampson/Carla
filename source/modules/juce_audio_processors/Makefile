@@ -10,7 +10,8 @@ include ../Makefile.mk
 
 # ----------------------------------------------------------------------------------------------------------------------------
 
-BUILD_CXX_FLAGS += $(JUCE_AUDIO_PROCESSORS_FLAGS) -I$(CWD)/includes/ladspa -I$(CWD)/includes/vst2 -I$(CWD)/includes/vst3 -I..
+BUILD_CXX_FLAGS += $(JUCE_AUDIO_PROCESSORS_FLAGS)
+BUILD_CXX_FLAGS += -I$(CWD)/includes/ladspa -I$(CWD)/includes/vst2 -I$(CWD)/includes/vst3 -I..
 
 ifeq ($(CARLA_VESTIGE_HEADER),true)
 BUILD_CXX_FLAGS += -DVESTIGE_HEADER
@@ -22,7 +23,9 @@ BUILD_CXX_FLAGS += -DDEVELOPMENT -D_DEBUG
 else
 BUILD_CXX_FLAGS += -DRELEASE
 endif
-# needed by vst3 on mingw
+ifeq ($(LINUX),true)
+BUILD_CXX_FLAGS += -DLINUX=1 -D__UNIX__=1
+endif
 ifeq ($(WIN32),true)
 BUILD_CXX_FLAGS += -D_NATIVE_WCHAR_T_DEFINED -D__wchar_t=wchar_t -fpermissive
 endif

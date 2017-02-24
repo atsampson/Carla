@@ -69,7 +69,7 @@ void AudioPluginFormatManager::addDefaultFormats()
         jassert (dynamic_cast<VSTPluginFormat*> (formats[i]) == nullptr);
        #endif
 
-       #if JUCE_PLUGINHOST_VST3 && (JUCE_MAC || JUCE_WINDOWS)
+       #if JUCE_PLUGINHOST_VST3 && (JUCE_MAC || JUCE_WINDOWS || JUCE_LINUX)
         jassert (dynamic_cast<VST3PluginFormat*> (formats[i]) == nullptr);
        #endif
 
@@ -91,7 +91,7 @@ void AudioPluginFormatManager::addDefaultFormats()
     formats.add (new VSTPluginFormat());
    #endif
 
-   #if JUCE_PLUGINHOST_VST3 && (JUCE_MAC || JUCE_WINDOWS)
+   #if JUCE_PLUGINHOST_VST3 && (JUCE_MAC || JUCE_WINDOWS || JUCE_LINUX)
     formats.add (new VST3PluginFormat());
    #endif
 

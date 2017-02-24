@@ -23,7 +23,7 @@
 
 #include "AppConfig.h"
 
-#if defined(CARLA_OS_MAC) || defined(CARLA_OS_WIN)
+#if defined(CARLA_OS_MAC) || defined(CARLA_OS_WIN) || (defined(CARLA_OS_LINUX) && ! defined(VESTIGE_HEADER))
 # define USE_JUCE_PROCESSORS
 # include "juce_audio_processors/juce_audio_processors.h"
 #endif

@@ -205,7 +205,7 @@
 
     @see VSTPluginFormat, VST3PluginFormat, AudioPluginFormat, AudioPluginFormatManager, JUCE_PLUGINHOST_VST, JUCE_PLUGINHOST_AU
 */
-#if defined(APPCONFIG_OS_MAC) || defined(APPCONFIG_OS_WIN)
+#if defined(APPCONFIG_OS_MAC) || defined(APPCONFIG_OS_WIN) || (defined(APPCONFIG_OS_LINUX) && ! defined(VESTIGE_HEADER))
 # define JUCE_PLUGINHOST_VST3 1
 #else
 # define JUCE_PLUGINHOST_VST3 0
