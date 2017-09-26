@@ -344,6 +344,48 @@ static const NativePluginDescriptor sNativePluginDescriptors[] = {
 #endif
 
 // -----------------------------------------------------------------------
+// External-UI plugins
+
+#ifdef HAVE_PYQT
+{
+    /* category  */ NATIVE_PLUGIN_CATEGORY_UTILITY,
+    /* hints     */ static_cast<NativePluginHints>(NATIVE_PLUGIN_IS_RTSAFE
+                                                  |NATIVE_PLUGIN_HAS_UI
+                                                  |NATIVE_PLUGIN_NEEDS_FIXED_BUFFERS),
+    /* supports  */ NATIVE_PLUGIN_SUPPORTS_NOTHING,
+    /* audioIns  */ 2,
+    /* audioOuts */ 0,
+    /* midiIns   */ 0,
+    /* midiOuts  */ 0,
+    /* paramIns  */ 2,
+    /* paramOuts */ 2,
+    /* name      */ "Big Meter",
+    /* label     */ "bigmeter",
+    /* maker     */ "falkTX",
+    /* copyright */ "GNU GPL v2+",
+    DESCFUNCS
+},
+{
+    /* category  */ NATIVE_PLUGIN_CATEGORY_UTILITY,
+    /* hints     */ static_cast<NativePluginHints>(NATIVE_PLUGIN_IS_RTSAFE
+                                                  |NATIVE_PLUGIN_HAS_UI),
+    /* supports  */ NATIVE_PLUGIN_SUPPORTS_NOTHING,
+    /* audioIns  */ 0,
+    /* audioOuts */ 0,
+    /* midiIns   */ 0,
+    /* midiOuts  */ 0,
+    /* paramIns  */ 1,
+    /* paramOuts */ 0,
+    /* name      */ "Notes",
+    /* label     */ "notes",
+    /* maker     */ "falkTX",
+    /* copyright */ "GNU GPL v2+",
+    DESCFUNCS
+},
+#endif
+
+#ifdef CARLA_EXTERNAL_PLUGINS_AVAILABLE
+// -----------------------------------------------------------------------
 // DISTRHO Plugins
 
 {
@@ -543,47 +585,6 @@ static const NativePluginDescriptor sNativePluginDescriptors[] = {
     /* copyright */ "GPL v2+",
     DESCFUNCS
 },
-
-// -----------------------------------------------------------------------
-// External-UI plugins
-
-#ifdef HAVE_PYQT
-{
-    /* category  */ NATIVE_PLUGIN_CATEGORY_UTILITY,
-    /* hints     */ static_cast<NativePluginHints>(NATIVE_PLUGIN_IS_RTSAFE
-                                                  |NATIVE_PLUGIN_HAS_UI
-                                                  |NATIVE_PLUGIN_NEEDS_FIXED_BUFFERS),
-    /* supports  */ NATIVE_PLUGIN_SUPPORTS_NOTHING,
-    /* audioIns  */ 2,
-    /* audioOuts */ 0,
-    /* midiIns   */ 0,
-    /* midiOuts  */ 0,
-    /* paramIns  */ 2,
-    /* paramOuts */ 2,
-    /* name      */ "Big Meter",
-    /* label     */ "bigmeter",
-    /* maker     */ "falkTX",
-    /* copyright */ "GNU GPL v2+",
-    DESCFUNCS
-},
-{
-    /* category  */ NATIVE_PLUGIN_CATEGORY_UTILITY,
-    /* hints     */ static_cast<NativePluginHints>(NATIVE_PLUGIN_IS_RTSAFE
-                                                  |NATIVE_PLUGIN_HAS_UI),
-    /* supports  */ NATIVE_PLUGIN_SUPPORTS_NOTHING,
-    /* audioIns  */ 0,
-    /* audioOuts */ 0,
-    /* midiIns   */ 0,
-    /* midiOuts  */ 0,
-    /* paramIns  */ 1,
-    /* paramOuts */ 0,
-    /* name      */ "Notes",
-    /* label     */ "notes",
-    /* maker     */ "falkTX",
-    /* copyright */ "GNU GPL v2+",
-    DESCFUNCS
-},
-#endif
 
 // -----------------------------------------------------------------------
 // ZynAddSubFX
@@ -818,6 +819,7 @@ static const NativePluginDescriptor sNativePluginDescriptors[] = {
     DESCFUNCS
 },
 #endif // HAVE_EXPERIMENTAL_PLUGINS
+#endif // CARLA_EXTERNAL_PLUGINS_AVAILABLE
 
 };
 

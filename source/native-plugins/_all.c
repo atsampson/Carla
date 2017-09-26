@@ -45,6 +45,7 @@ extern void carla_register_native_plugin_midipattern(void);
 // Carla
 extern void carla_register_native_plugin_carla(void);
 
+#ifdef CARLA_EXTERNAL_PLUGINS_AVAILABLE
 // DISTRHO plugins
 extern void carla_register_native_plugin_distrho_3bandeq(void);
 extern void carla_register_native_plugin_distrho_3bandsplitter(void);
@@ -69,6 +70,7 @@ extern void carla_register_native_plugin_zynaddsubfx_synth(void);
 extern void carla_register_native_plugin_zita_at1(void);
 extern void carla_register_native_plugin_zita_bls1(void);
 extern void carla_register_native_plugin_zita_rev1(void);
+#endif
 
 // -----------------------------------------------------------------------
 
@@ -98,42 +100,42 @@ void carla_register_all_native_plugins(void)
     carla_register_native_plugin_carla();
 #endif
 
+#ifdef CARLA_EXTERNAL_PLUGINS_AVAILABLE
     // DISTRHO Plugins
     carla_register_native_plugin_distrho_3bandeq();
     carla_register_native_plugin_distrho_3bandsplitter();
     carla_register_native_plugin_distrho_kars();
     carla_register_native_plugin_distrho_nekobi();
     carla_register_native_plugin_distrho_pingpongpan();
-#ifdef HAVE_DGL
-#ifdef HAVE_PROJECTM
+# if defined(HAVE_DGL) && defined(HAVE_PROJECTM)
     carla_register_native_plugin_distrho_prom();
-#endif
-#endif
+# endif
 
     // DISTRHO plugins (Juice)
     carla_register_native_plugin_distrho_vectorjuice();
     carla_register_native_plugin_distrho_wobblejuice();
 
-#ifdef HAVE_PYQT
+# ifdef HAVE_PYQT
     // External-UI plugins
     carla_register_native_plugin_bigmeter();
     carla_register_native_plugin_notes();
-#endif
+# endif
 
-#ifdef HAVE_ZYN_DEPS
+# ifdef HAVE_ZYN_DEPS
     // ZynAddSubFX
     carla_register_native_plugin_zynaddsubfx_fx();
-# ifndef DISABLE_PLUGINS_FOR_WINDOWS_BUILD
+#  ifndef DISABLE_PLUGINS_FOR_WINDOWS_BUILD
     carla_register_native_plugin_zynaddsubfx_synth();
+#  endif
 # endif
-#endif
 
-#ifdef HAVE_EXPERIMENTAL_PLUGINS
+# ifdef HAVE_EXPERIMENTAL_PLUGINS
     // Experimental plugins
     carla_register_native_plugin_zita_at1();
     carla_register_native_plugin_zita_bls1();
     carla_register_native_plugin_zita_rev1();
-#endif
+# endif
+#endif // CARLA_EXTERNAL_PLUGINS_AVAILABLE
 }
 
 // -----------------------------------------------------------------------
